@@ -1,6 +1,6 @@
 # cop701DistributedLedger
 
-# Normal Execution
+# Normal Execution:
 
 When we run start.py from the terminal using the command "sudo python start.py", the user is asked for the number of nodes. 
 
@@ -14,7 +14,7 @@ Each host is given two options:
 1. Making a transaction: The host is given an option to make a transaction of bitcoins to some other host.
 2. Verifying the ledger: At any point of time, a host can verify its ledger with the ledger's of all other nodes.
 
-# To stop the execution
+# To stop the execution:
  
  Use the command "exit".
 
