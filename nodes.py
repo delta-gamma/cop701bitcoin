@@ -1,3 +1,8 @@
+"""
+Authors: Mahima Manik, Mansi Sharma, Sruti Goyal
+Dated: 09-04-2017
+"""
+
 import socket, sys, math, re
 import random
 from subprocess import check_output
@@ -51,10 +56,11 @@ class Peer:
         p2=threading.Thread(target=self.udpservercode) 			#thread for udp server
        	p2.daemon = True
        	p2.start()
+       	time.sleep(0.2)
         
-        p3=threading.Thread(target=self.randomoffon) 			#thread for offline-online
-       	p3.daemon = True
-       	p3.start()
+        #p3=threading.Thread(target=self.randomoffon) 			#thread for offline-online
+       	#p3.daemon = True
+       	#p3.start()
         
 #------------------------------DHT----------------------------------------------------------------->
     
@@ -130,7 +136,7 @@ class Peer:
             if int(t) in nodes:
                 nodes.remove(t)
             
-            print '\nnode_went_offline', nodes
+            print '\nList of online nodes are', nodes
             
             if int(t)+1000!=self.nodeid:
                 self.create_ft()
@@ -161,7 +167,7 @@ class Peer:
         
         for key in sorted(self.ft, reverse=True):
             
-            print 'key searched: ', key
+            #print 'key searched: ', key
             
             if int(key)==int(nid):
                 b=1
@@ -364,7 +370,7 @@ class Peer:
         addr = ('', udpserverport)
         udpsocket.bind(addr)
         
-        print 'UDP server created for', self.nodeid, 'at', udpserverport
+        print 'UDP server created for', self.nodeid
         
         while True:
             if self.state==1:
@@ -409,7 +415,6 @@ class Peer:
         if self.check_ledger(clientid)>=int(amount):
 	       myrand = 10
 	       
-	       #Updation for input list 2
 	       for i in range(len(self.ledger)):
 		       if (self.ledger[i][2]==clientid) or (self.ledger[i][1]==clientid) :
 		          ver_list.append(self.ledger[i])
@@ -426,7 +431,7 @@ class Peer:
 	           continue
 	       
 	       if self.newpk.verify(hash,sign)==True:
-		   print "SENDER's INPUT LIST VERIFIED"
+		   print "Sender's input list verified"
 		   if(myrand != random.randint(1,100)):
 		   	clientsock.send('commit')
 		   else:
@@ -501,8 +506,8 @@ class Peer:
 #--------------------------------------- LEDGER ---------------------------------------------------------------------->   
     
     def abort_transaction(self, trans_id, sender, receiver, amount):
-        container = str(trans_id) + ' '+str(sender)+' '+str(receiver) + ' '+str(amount) + ' abort'
-        print 'abort trans called'
+    	container = str(trans_id) + ' '+str(sender)+' '+str(receiver) + ' '+str(amount) + ' abort'
+        print 'abort transaction called'
         self.udpclientcode(container)
     
     def rollbacktrans(self, trans_id, sender, receiver,amount):
@@ -510,18 +515,18 @@ class Peer:
     	
     	if(len(self.ledger)==0):
         	self.rollbacks.append([trans_id, sender, receiver,amount])
-            	print self.rollbacks
+            	#print self.rollbacks
     	
     	for i in range(len(self.ledger)):
     	    print '\n',self.ledger[i][0], ' ', trans_id
     	
     	    if (int(self.ledger[i][0])==int(trans_id)):
-    	    	print 'match found\n'
+    	    	#print 'match found\n'
         	self.ledger.pop(i)
         
             else:
             	self.rollbacks.append([trans_id, sender, receiver,amount])
-            	print self.rollbacks
+            	#print self.rollbacks
         
         self.print_ledger()
         
@@ -541,7 +546,7 @@ class Peer:
     	    amt = self.bitcoins - amount
 	
 	    if amt<0:
-		print 'update ledger'
+		#print 'update ledger'
 		self.abort_transaction(trans_id, sender, receiver, amount)
 		print 'Updated bitcoins are: ', self.bitcoins
         	self.print_ledger()
@@ -583,7 +588,7 @@ class Peer:
         sender=self.nodeid
         x=random.choice(nodes)
         
-        while(int(x)==int(self.ind) and int(x)==int(int(recvid)-1000)):
+        while(int(x)==int(self.ind) or int(x)==int(int(recvid)-1000)):
             x=random.choice(nodes)
         
         witip='10.0.0.'+str(x)
@@ -615,7 +620,7 @@ class Peer:
             print 'Not sufficient bitcoins'   	
             
     def trans1(self):
-	    if (self.nodeid==1002):
+	    if (self.nodeid==1001):
 		    recvid = 1004 
 		    sendTo = '10.0.0.4'      
 		    self.sender_trans(sendTo, recvid, '1000')
@@ -650,9 +655,15 @@ if __name__ == '__main__':
         peerobj.create_ft()
         time.sleep(2)
     
+    #p5=threading.Thread(target=peerobj.trans1) 
+    #p6=threading.Thread(target=peerobj.trans2) 
+    #p5.start()
+    #p6.start()
+    #time.sleep(2)
+    #print peerobj.bitcoins
     
     while True:
-        opt = raw_input("Please choose:\nPress 1: Send Bitcoins -> \nPress 2: Verify Ledger ->")
+        opt = raw_input("Please choose:\nPress 1: Send Bitcoins -> \nPress 2: Verify Ledger\n3. Go On/off ->")
         
         if(opt=='1'):
             
@@ -689,19 +700,57 @@ if __name__ == '__main__':
 		        DS_ledger=peerobj.key.sign(hash,'')
 		        message=str(peerobj.nodeid)+' '+str(DS_ledger)+' verify'
 		        peerobj.udpclientcode(message)
-"""Debug options:
-1. To go offline from main()
-	if(opt=='1'):
+		        
+	if(opt=='3'):
             if peerobj.state==1 and len(nodes)>2:
                 gof=raw_input('want to go offline(Y/N)?')
+                
                 if(gof=="y" or gof=="Y"):
+                    print "Going offline", peerobj.nodeid
                     peerobj.state=0
+                    
                     if int(peerobj.ind) in nodes:
                         nodes.remove(int(peerobj.ind))
-                    num_nodes-=1
+            
                     message = str(peerobj.nodeid)+" off"
                     peerobj.udpclientcode(message)
-		    time.sleep(2)
+                    
+            elif peerobj.state==0:
+            	gof=raw_input('want to go offline(Y/N)?')
+            	
+            	if(gof=="y" or gof=="Y"):
+		    print "Back online", peerobj.nodeid
+		    peerobj.state=1
+		    nodes=[int(peerobj.ind)]
+		    message = str(peerobj.nodeid)+" on"
+		    peerobj.udpclientcode(message)
+                       
+"""Debug options:
+1. To go offline from main()
+	if(opt=='3'):
+            if peerobj.state==1 and len(nodes)>2:
+                gof=raw_input('want to go offline(Y/N)?')
+                
+                if(gof=="y" or gof=="Y"):
+                    print "Going offline", peerobj.nodeid
+                    peerobj.state=0
+                    
+                    if int(peerobj.ind) in nodes:
+                        nodes.remove(int(peerobj.ind))
+            
+                    message = str(peerobj.nodeid)+" off"
+                    peerobj.udpclientcode(message)
+                    
+            elif peerobj.state==0:
+            	gof=raw_input('want to go offline(Y/N)?')
+            	
+            	if(gof=="y" or gof=="Y"):
+		    print "Back online", peerobj.nodeid
+		    peerobj.state=1
+		    nodes=[int(peerobj.ind)]
+		    message = str(peerobj.nodeid)+" on"
+		    peerobj.udpclientcode(message)
+		    
 2. To demonstrate double spent problem
     p5=threading.Thread(target=peerobj.trans1) 
     p6=threading.Thread(target=peerobj.trans2) 
