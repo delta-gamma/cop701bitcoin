@@ -21,6 +21,8 @@ Each host is given two options:
 # For Adding Host on the fly:
 
 For adding a host in the already genrated network, type " py execfile("addHostonfly.py") " command in the mininet terminal. Then, enter the identifier of the host created.(Suppose host h5 is to be created, '5' is the identifier of the host).
+Change the path of the nodes.py in the python script for execution.
 Remeber hosts are created in sequential order.
+
 
 
