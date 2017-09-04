@@ -14,7 +14,7 @@ net.addLink(s1,net.get(y))
 net.get('s1').attach('s1-eth'+str(x))
 net.get(y).setIP('10.0.0.'+str(x)+'/8')
 net.get(y)
-net.get(y).cmd("xterm -hold -e sudo python /home/mansi/Desktop/merge1.py "+str(0)+" &")
+net.get(y).cmd("xterm -hold -e sudo python /home/mansi/Desktop/nodes.py "+str(0)+" &")
 
 
 # To run in mininet type : py execfile("addHostonfly.py")
